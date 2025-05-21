@@ -3,18 +3,15 @@ import CoachChat from '../components/coaches/CoachChat';
 import { Apple, Calendar } from 'lucide-react';
 import { useAppContext } from '../contexts/AppContext';
 import EventCard from '../components/common/EventCard';
+import { getDietCoachAdvice } from '../services/api';
 
 const DietCoach = () => {
   const { state } = useAppContext();
   const [activeTab, setActiveTab] = useState('chat');
   
-  // This would normally call the actual API
   const handleSendMessage = async (message: string): Promise<string> => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // For demo purposes, return a hardcoded response
-    return `Concernant votre message "${message}", en tant que Coach Diète, je peux vous conseiller sur une alimentation adaptée à vos entraînements et objectifs. Votre prochain entraînement de natation demande une attention particulière à l'hydratation et aux glucides complexes. Souhaitez-vous une recommandation de repas spécifique pour avant ou après cette séance?`;
+    const { data } = await getDietCoachAdvice({ message });
+    return data.message;
   };
 
   // Filter to diet-related events
