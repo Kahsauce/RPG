@@ -2,18 +2,15 @@ import { useState } from 'react';
 import CoachChat from '../components/coaches/CoachChat';
 import { Activity, Calendar } from 'lucide-react';
 import { useAppContext } from '../contexts/AppContext';
+import { getInjuryCoachAdvice } from '../services/api';
 
 const InjuryCoach = () => {
   const { state } = useAppContext();
   const [activeTab, setActiveTab] = useState('chat');
   
-  // This would normally call the actual API
   const handleSendMessage = async (message: string): Promise<string> => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // For demo purposes, return a hardcoded response
-    return `À propos de "${message}", en tant que Coach Blessure, je dois évaluer si vous ressentez des douleurs actuellement. Si c'est le cas, décrivez-moi précisément la localisation, l'intensité et quand cette douleur survient. Je pourrai ainsi vous donner des conseils pour adapter vos entraînements et accélérer votre récupération.`;
+    const { data } = await getInjuryCoachAdvice({ message });
+    return data.message;
   };
 
   const activeInjuries = state.injuries.filter(injury => injury.status === 'active');

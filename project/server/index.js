@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import dotenv from 'dotenv';
+import axios from 'axios';
 
 // Load environment variables
 dotenv.config();
@@ -113,6 +114,31 @@ async function setupDatabase() {
   return db;
 }
 
+async function getAIResponse(prompt) {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const url = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/v1/chat/completions';
+
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY is not set');
+  }
+
+  const response = await axios.post(
+    url,
+    {
+      model: 'deepseek-chat',
+      messages: [{ role: 'user', content: prompt }],
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+    },
+  );
+
+  return response.data.choices?.[0]?.message?.content || '';
+}
+
 async function startServer() {
   const db = await setupDatabase();
   const app = express();
@@ -205,14 +231,9 @@ async function startServer() {
   // AI Coach endpoints
   app.post('/api/coach/sport', async (req, res) => {
     try {
-      // This would normally call the OpenAI API
-      // For demo purposes, return hardcoded data
-      
-      setTimeout(() => {
-        res.json({
-          message: 'Pour optimiser votre préparation au triathlon tout en intégrant le football, je vous suggère de réduire le volume de course à pied dans les 48h suivant vos matchs de football. Privilégiez plutôt la natation et le vélo durant ces périodes pour maintenir votre endurance tout en épargnant vos jambes. Nous pouvons également ajuster votre plan pour inclure des séances spécifiques de renforcement musculaire ciblant les groupes sollicités en football mais aussi bénéfiques pour le triathlon.'
-        });
-      }, 500);
+      const { message } = req.body;
+      const reply = await getAIResponse(message);
+      res.json({ message: reply });
     } catch (error) {
       console.error('Error getting sport coach advice:', error);
       res.status(500).json({ error: 'Failed to get sport coach advice' });
@@ -221,14 +242,9 @@ async function startServer() {
 
   app.post('/api/coach/diet', async (req, res) => {
     try {
-      // This would normally call the OpenAI API
-      // For demo purposes, return hardcoded data
-      
-      setTimeout(() => {
-        res.json({
-          message: 'Votre programme d\'entrainement intense de cette semaine nécessite une attention particulière à votre hydratation et à vos apports en glucides. Je vous recommande d\'augmenter votre consommation de féculents complets les jours d\'entrainements combinés (triathlon + football). Également, prévoyez une collation riche en protéines et glucides dans les 30 minutes suivant vos séances intenses pour optimiser la récupération musculaire.'
-        });
-      }, 500);
+      const { message } = req.body;
+      const reply = await getAIResponse(message);
+      res.json({ message: reply });
     } catch (error) {
       console.error('Error getting diet coach advice:', error);
       res.status(500).json({ error: 'Failed to get diet coach advice' });
@@ -237,14 +253,9 @@ async function startServer() {
 
   app.post('/api/coach/injury', async (req, res) => {
     try {
-      // This would normally call the OpenAI API
-      // For demo purposes, return hardcoded data
-      
-      setTimeout(() => {
-        res.json({
-          message: 'La combinaison de football et course à pied augmente les sollicitations sur vos genoux. Je vous conseille d\'intégrer des exercices de renforcement spécifiques pour les quadriceps et ischio-jambiers 2 fois par semaine. Portez également une attention particulière à vos sensations au niveau du genou droit qui montre des signes de fatigue. Nous devrions peut-être envisager une séance de récupération supplémentaire si les symptômes persistent.'
-        });
-      }, 500);
+      const { message } = req.body;
+      const reply = await getAIResponse(message);
+      res.json({ message: reply });
     } catch (error) {
       console.error('Error getting injury coach advice:', error);
       res.status(500).json({ error: 'Failed to get injury coach advice' });

@@ -2,18 +2,15 @@ import { useState } from 'react';
 import CoachChat from '../components/coaches/CoachChat';
 import { Dumbbell, Calendar, BarChart2 } from 'lucide-react';
 import { useAppContext } from '../contexts/AppContext';
+import { getSportCoachAdvice } from '../services/api';
 
 const TrainingCoach = () => {
   const { state } = useAppContext();
   const [activeTab, setActiveTab] = useState('chat');
   
-  // This would normally call the actual API
   const handleSendMessage = async (message: string): Promise<string> => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // For demo purposes, return a hardcoded response
-    return `Je comprends que vous souhaitez discuter de "${message}". En tant que Coach Sport, je peux vous suggérer un plan d'entraînement adapté à vos objectifs de triathlon et football, tout en tenant compte de votre historique et de vos prochaines compétitions. Souhaitez-vous des recommandations spécifiques pour votre prochaine séance?`;
+    const { data } = await getSportCoachAdvice({ message });
+    return data.message;
   };
 
   return (
